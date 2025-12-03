@@ -60,9 +60,10 @@ with st.sidebar:
     st.info(
         """
         **Projet M1 Data Engineering**
-        Simulation du Dilemme du Prisonnier Itératif mixant Algorithmes et LLM (Mistral/Llama).
+        Simulation du Dilemme du Prisonnier Itératif mixant Algorithmes et LLM.
         """
     )
+    st.caption("Auteur: Azélie Bernard")
 
 # ==============================================================================
 # 4. DASHBOARD HEADER (KPIs)
@@ -86,8 +87,6 @@ if not df.empty:
     best_score = df_long.groupby('agent')['score'].mean().max()
     
     # Traître principal
-    worst_coop = df_long.groupby('agent')['score'].count() # Dummy
-    # Recalcul manuel du taux de coop par agent pour trouver le traître
     df_coop_long = pd.concat([
         df[['p1_name', 'p1_is_coop']].rename(columns={'p1_name': 'agent', 'p1_is_coop': 'coop'}),
         df[['p2_name', 'p2_is_coop']].rename(columns={'p2_name': 'agent', 'p2_is_coop': 'coop'})
@@ -104,9 +103,71 @@ if not df.empty:
     st.markdown("---")
 
     # ==============================================================================
-    # 5. ONGLETS D'ANALYSE
+    # 5. ONGLETS D'ANALYSE (STRUCTURE ENRICHIE)
     # ==============================================================================
-    tab1, tab2, tab3, tab4 = st.tabs(["🏆 Performance & Stratégie", "📈 Dynamique Temporelle", "🧠 Cerveau de l'IA (NLP)", "📄 Données Brutes"])
+    # AJOUT DU PREMIER ONGLET "CONTEXTE"
+    tab_context, tab1, tab2, tab3, tab4 = st.tabs([
+        "📚 Contexte & Méthodologie", 
+        "🏆 Performance & Stratégie", 
+        "📈 Dynamique Temporelle", 
+        "🧠 Cerveau de l'IA (NLP)", 
+        "📄 Données Brutes"
+    ])
+
+    # --- TAB 0 : CONTEXTE & MÉTHODOLOGIE (NOUVEAU) ---
+    with tab_context:
+        st.subheader("📌 Cadre de l'Expérience")
+        col_text, col_matrix = st.columns([2, 1])
+        
+        with col_text:
+            st.markdown("""
+            **Inspiré des travaux de Robert Axelrod (1981)**, ce projet vise à simuler l'émergence de la coopération dans un environnement mixte composé d'algorithmes déterministes et d'Intelligences Artificielles Génératives.
+            
+            **Le Dilemme :**
+            Deux agents sont arrêtés. Ils ne peuvent pas communiquer.
+            * S'ils coopèrent tous les deux : Gain modéré (3 pts).
+            * Si l'un trahit et l'autre coopère : Le traître rafle tout (5 pts), la victime perd tout (0 pt).
+            * S'ils se trahissent mutuellement : Perte commune (1 pt).
+            """)
+            
+            st.info("""
+            **Objectif Technique (ETL) :** Construire un pipeline robuste capable d'orchestrer des modèles **LLM locaux (Mistral/Llama)**, de structurer leurs réponses JSON et d'analyser les stratégies émergentes.
+            """)
+
+        with col_matrix:
+            st.markdown("#### Matrice des Gains")
+            matrix_df = pd.DataFrame(
+                {"Coopère (B)": ["(3, 3) R", "(5, 0) T"], "Trahit (B)": ["(0, 5) S", "(1, 1) P"]},
+                index=["Coopère (A)", "Trahit (A)"]
+            )
+            st.table(matrix_df)
+            st.caption("*R=Reward, S=Sucker, T=Temptation, P=Punishment*")
+
+        st.markdown("---")
+        
+        st.subheader("🛠️ Architecture & Innovation")
+        c1, c2, c3 = st.columns(3)
+        with c1:
+            st.markdown("#### 1. EXTRACT (Simulation)")
+            st.markdown("""
+            * **Hybridation :** Mix Algo (TitForTat, Grim) vs LLM (Mistral/Llama).
+            * **Anti-Hallucination :** Parser JSON strict avec logique de *Retry*.
+            * **Innovation :** Technique de **"Prompt Masking"**. Le terme "Prisonnier" est caché à l'IA et remplacé par un scénario de *Gestion d'Énergie* pour éviter le biais d'apprentissage.
+            """)
+        with c2:
+            st.markdown("#### 2. TRANSFORM (Enrichissement)")
+            st.markdown("""
+            * **Feature Engineering :** Calcul vectorisé avec Pandas.
+            * **Lag Features :** Création d'une "mémoire" (tours précédents).
+            * **Psychologie :** Détection automatique des états (Trahison subie, Pardon, Rancune).
+            """)
+        with c3:
+            st.markdown("#### 3. LOAD (Analyse)")
+            st.markdown("""
+            * **Stockage :** Format **Parquet** (Colonnaire) pour la performance.
+            * **Visualisation :** Streamlit + Plotly pour l'interactivité.
+            * **KPIs :** Équilibre de Nash et Taux de Coopération.
+            """)
 
     # --- TAB 1 : PERFORMANCE ---
     with tab1:
@@ -157,20 +218,17 @@ if not df.empty:
         st.plotly_chart(fig_line, use_container_width=True)
 
         st.subheader("La Course aux Points (Score Cumulé)")
-        # On veut voir l'accumulation des points pour un match spécifique
         match_list = df['match_id'].unique()
         selected_match = st.selectbox("Sélectionner un duel à analyser :", match_list)
         
         match_data = df[df['match_id'] == selected_match].copy()
         
-        # Création d'un dataset long pour Plotly
         p1_name = match_data['p1_name'].iloc[0]
         p2_name = match_data['p2_name'].iloc[0]
         
         cum_data = match_data[['round_num', 'p1_cum_score', 'p2_cum_score']].melt(
             id_vars='round_num', var_name='Player', value_name='Cumulative Score'
         )
-        # Renommer proprement pour la légende
         cum_data['Player'] = cum_data['Player'].map({'p1_cum_score': p1_name, 'p2_cum_score': p2_name})
         
         fig_race = px.line(
@@ -231,4 +289,4 @@ if not df.empty:
         )
 
 else:
-    st.info("En attente de données...")
+    st.info("En attente de données... Veuillez lancer le pipeline ETL.")
