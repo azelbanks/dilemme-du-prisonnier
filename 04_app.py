@@ -103,12 +103,13 @@ st.markdown("---")
 # ==============================================================================
 # 5. ONGLETS D'ANALYSE
 # ==============================================================================
-tab_context, tab_perf, tab_time, tab_nlp, tab_data = st.tabs([
-    "📚 Contexte & Méthodologie", 
-    "🏆 Performance & Stratégie", 
+tab_context, tab_perf, tab_time, tab_nlp, tab_data, tab_concl = st.tabs([
+    "📚 Contexte & Méthodologie",
+    "🏆 Performance & Stratégie",
     "📈 Dynamique Temporelle",
-    "🧠 Cerveau de l'IA (NLP)", 
-    "📄 Données Brutes"
+    "🧠 Cerveau de l'IA (NLP)",
+    "📄 Données Brutes",
+    "🎓 Conclusions & Perspectives"  # <--- The new 6th tab
 ])
 
 # ------------------------------------------------------------------------------
@@ -501,3 +502,66 @@ with tab_data:
             file_name="prisoner_export_filtered.csv",
             mime="text/csv",
         )
+
+# ------------------------------------------------------------------------------
+# TAB 5 : CONCLUSIONS (NOUVEAU - NIVEAU SENIOR)
+# ------------------------------------------------------------------------------
+with tab_concl:
+    st.header("🎓 Bilan de l'Expérimentation")
+    st.markdown("""
+    Cette étude a permis de confronter la **rationalité mathématique** (Algorithmes) à la **rationalité sémantique** (LLM).
+    Les résultats offrent des insights précieux sur le comportement des modèles d'IA en situation de conflit.
+    """)
+    
+    st.divider()
+
+    # --- PARTIE 1 : LE PARADOXE GRIM_BOT ---
+    st.subheader("1. Le Paradoxe de la Dissuasion (Grim_Bot)")
+    c1, c2 = st.columns([1, 2])
+    with c1:
+        st.metric("Score Grim_Bot", f"{best_agent_score:.2f} pts", delta="1er", delta_color="normal")
+    with c2:
+        st.success("""
+        **Pourquoi a-t-il gagné ?**
+        Bien que *Grim_Bot* soit identifié statistiquement comme le plus "Machiavélique" (le plus grand nombre de trahisons totales), 
+        c'est une **réaction défensive**.
+        
+        * **Stratégie :** "Coopérer jusqu'à la première trahison, puis trahir pour toujours."
+        * **Résultat :** C'est la stratégie de la **Dissuasion Nucléaire**. Il impose une paix armée. 
+        En punissant impitoyablement toute déviation (notamment de Machiavel), il sécurise ses gains contre les autres agents rationnels.
+        """)
+
+    st.divider()
+
+    # --- PARTIE 2 : BATTLE OF MODELS ---
+    st.subheader("2. Mistral vs Llama : Hypothèse Culturelle & Technique")
+    
+    c_fr, c_us = st.columns(2)
+    
+    with c_fr:
+        st.markdown("#### 🇪🇺 Mistral 7B (Ghandi)")
+        st.info("""
+        * **Comportement :** Très stable, coopératif, respectueux du format JSON.
+        * **Hypothèse :** Le modèle semble avoir un *Alignment* (alignement éthique) plus fort vers la bienveillance, 
+        probablement dû à son dataset d'entraînement européen focalisé sur la qualité instructionnelle.
+        """)
+        
+    with c_us:
+        st.markdown("#### 🇺🇸 Llama 3 8B (Machiavel)")
+        st.warning("""
+        * **Comportement :** Instable techniquement (44% de *Fail Safe*), verbeux, tente de tricher.
+        * **Hypothèse :** L'agent a tenté de manipuler le système en ne respectant pas le format de sortie. 
+        Sa performance (Dernier) est liée à son incapacité à comprendre la **répétition** du jeu (Shadow of the Future).
+        """)
+
+    st.divider()
+
+    # --- PARTIE 3 : CONCLUSION GÉNÉRALE ---
+    st.subheader("3. L'Enseignement Principal")
+    st.markdown("""
+    > **"L'intelligence ne suffit pas face à la cohérence."**
+    
+    L'expérience démontre que dans un environnement itératif (le monde réel), **la prévisibilité et la réciprocité** (TitForTat, Grim) 
+    l'emportent sur l'opportunisme complexe (Machiavel). Les IA actuelles, bien que capables de raisonnements sophistiqués, 
+    peinent encore à maintenir une stratégie cohérente sur le long terme sans "halluciner" ou dévier de leur objectif.
+    """)
